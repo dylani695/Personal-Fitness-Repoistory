@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Shred Stack</title>
+<title>Health Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #0a0a0a; --surface: #111111; --surface2: #181818; --surface3: #222222;
@@ -13,99 +13,96 @@
   --accent: #c8ff57; --accent2: #57c8ff; --accent3: #ff6b57; --accent4: #ffc857;
   --text: #f0f0f0; --text2: #888; --text3: #444;
   --radius: 16px; --radius-sm: 10px; --nav-h: 72px;
+  --font: 'Barlow Condensed', sans-serif;
+  --mono: 'DM Mono', monospace;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html { background: var(--bg); }
-body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; min-height: 100vh; min-height: 100dvh; padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom)); }
+body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; min-height: 100dvh; padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom)); }
 .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; background: var(--surface); border-top: 1px solid var(--border2); display: flex; height: calc(var(--nav-h) + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); }
-.nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; padding: 10px 4px; cursor: pointer; border: none; background: transparent; color: var(--text3); transition: color 0.15s; font-family: 'Syne', sans-serif; }
+.nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; padding: 10px 4px; cursor: pointer; border: none; background: transparent; color: var(--text3); transition: color 0.15s; font-family: var(--font); }
 .nav-btn.active { color: var(--accent); }
 .nav-btn svg { width: 22px; height: 22px; stroke-width: 1.8; }
-.nav-label { font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+.nav-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; line-height: 1; }
 .panel { display: none; padding: 0 16px; animation: fadeUp 0.2s ease; }
 .panel.active { display: block; }
 @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
 .page-header { padding: 20px 16px 16px; position: sticky; top: 0; z-index: 10; background: var(--bg); border-bottom: 1px solid var(--border); margin: 0 -16px 20px; }
-.page-title { font-size: 24px; font-weight: 800; letter-spacing: -0.03em; }
-.page-sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
+.page-title { font-size: 28px; font-weight: 800; letter-spacing: 0.01em; text-transform: uppercase; line-height: 1.15; overflow: visible; }
+.page-sub { font-size: 14px; color: var(--text2); margin-top: 3px; font-weight: 400; letter-spacing: 0.02em; line-height: 1.4; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 14px; }
-.card-title { font-size: 10px; font-family: 'DM Mono', monospace; letter-spacing: 0.1em; color: var(--text3); text-transform: uppercase; margin-bottom: 14px; font-weight: 500; }
-.form-section { display: flex; align-items: center; gap: 10px; font-size: 10px; font-family: 'DM Mono', monospace; letter-spacing: 0.08em; color: var(--accent); text-transform: uppercase; margin: 22px 0 14px; font-weight: 500; }
+.card-title { font-size: 11px; font-family: var(--mono); letter-spacing: 0.1em; color: var(--text3); text-transform: uppercase; margin-bottom: 14px; font-weight: 500; }
+.form-section { display: flex; align-items: center; gap: 10px; font-size: 11px; font-family: var(--mono); letter-spacing: 0.08em; color: var(--accent); text-transform: uppercase; margin: 22px 0 14px; font-weight: 500; }
 .form-section::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
 .form-row.single { grid-template-columns: 1fr; }
 .form-group { display: flex; flex-direction: column; gap: 6px; }
-.form-label { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--text2); letter-spacing: 0.03em; }
-input[type=number], input[type=date], select { background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--radius-sm); color: var(--text); font-family: 'DM Mono', monospace; font-size: 15px; padding: 13px 14px; outline: none; transition: border-color 0.15s; width: 100%; -webkit-appearance: none; appearance: none; min-height: 48px; }
+.form-label { font-size: 11px; font-family: var(--mono); color: var(--text2); letter-spacing: 0.03em; line-height: 1.4; }
+input[type=number], input[type=date], select { background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--radius-sm); color: var(--text); font-family: var(--mono); font-size: 15px; padding: 13px 14px; outline: none; transition: border-color 0.15s; width: 100%; -webkit-appearance: none; appearance: none; min-height: 48px; }
 input:focus, select:focus { border-color: var(--accent); }
 select option { background: #181818; }
 .date-row { display: flex; align-items: center; gap: 10px; }
-.date-label { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--text2); flex-shrink: 0; }
+.date-label { font-size: 12px; font-family: var(--mono); color: var(--text2); flex-shrink: 0; }
 input[type=date] { flex: 1; }
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 15px 24px; border-radius: var(--radius-sm); font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s; border: none; min-height: 52px; width: 100%; letter-spacing: 0.01em; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 15px 24px; border-radius: var(--radius-sm); font-family: var(--font); font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.15s; border: none; min-height: 52px; width: 100%; letter-spacing: 0.06em; text-transform: uppercase; }
 .btn-accent { background: var(--accent); color: #0a0a0a; }
 .btn-accent:active { opacity: 0.85; transform: scale(0.98); }
 .btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
 .btn-ghost:active { background: var(--surface2); }
 .btn-danger { background: transparent; color: var(--accent3); border: 1px solid rgba(255,107,87,0.3); }
-.save-msg { display: block; text-align: center; font-size: 12px; font-family: 'DM Mono', monospace; color: var(--accent); margin-top: 10px; opacity: 0; transition: opacity 0.3s; min-height: 20px; }
+.save-msg { display: block; text-align: center; font-size: 12px; font-family: var(--mono); color: var(--accent); margin-top: 10px; opacity: 0; transition: opacity 0.3s; min-height: 20px; }
 .save-msg.show { opacity: 1; }
 .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
 .metric { background: var(--surface2); border-radius: var(--radius-sm); padding: 14px; border: 1px solid var(--border); }
-.metric-label { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--text3); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
-.metric-val { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; color: var(--text); line-height: 1.1; }
-.metric-val span { font-size: 12px; font-weight: 400; color: var(--text2); }
-.metric-delta { font-size: 11px; font-family: 'DM Mono', monospace; margin-top: 4px; }
+.metric-label { font-size: 10px; font-family: var(--mono); color: var(--text3); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
+.metric-val { font-size: 26px; font-weight: 800; letter-spacing: 0.01em; color: var(--text); line-height: 1.15; text-transform: uppercase; overflow: visible; }
+.metric-val span { font-size: 13px; font-weight: 400; color: var(--text2); text-transform: none; letter-spacing: 0; }
+.metric-delta { font-size: 11px; font-family: var(--mono); margin-top: 4px; }
 .delta-pos { color: var(--accent); } .delta-neg { color: var(--accent3); }
 .chart-wrap { display: flex; align-items: flex-end; gap: 5px; height: 110px; padding: 4px 0 0; }
 .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; min-width: 0; }
-.bar-top { font-size: 9px; font-family: 'DM Mono', monospace; color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; text-align: center; }
+.bar-top { font-size: 9px; font-family: var(--mono); color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; text-align: center; }
 .bar-body { flex: 1; width: 100%; display: flex; align-items: flex-end; }
 .bar-fill { width: 100%; border-radius: 4px 4px 0 0; min-height: 3px; }
-.bar-bottom { font-size: 9px; font-family: 'DM Mono', monospace; color: var(--text3); white-space: nowrap; }
+.bar-bottom { font-size: 9px; font-family: var(--mono); color: var(--text3); white-space: nowrap; }
 .sleep-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-.sleep-date { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text2); width: 48px; flex-shrink: 0; }
+.sleep-date { font-family: var(--mono); font-size: 11px; color: var(--text2); width: 48px; flex-shrink: 0; }
 .sleep-bar-bg { flex: 1; height: 8px; background: var(--surface3); border-radius: 4px; overflow: hidden; }
 .sleep-bar-fill { height: 100%; border-radius: 4px; background: var(--accent); }
-.sleep-num { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text); width: 28px; text-align: right; font-weight: 500; flex-shrink: 0; }
+.sleep-num { font-family: var(--mono); font-size: 13px; color: var(--text); width: 28px; text-align: right; font-weight: 500; flex-shrink: 0; }
 .history-entry { background: var(--surface2); border-radius: var(--radius-sm); border: 1px solid var(--border); padding: 14px; margin-bottom: 10px; }
-.history-date { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 10px; font-family: 'DM Mono', monospace; }
+.history-date { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 10px; font-family: var(--mono); letter-spacing: 0.02em; }
 .history-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border); }
 .history-row:last-child { border-bottom: none; }
-.history-key { font-size: 11px; color: var(--text2); font-family: 'DM Mono', monospace; }
-.history-val { font-size: 12px; color: var(--text); font-family: 'DM Mono', monospace; font-weight: 500; }
+.history-key { font-size: 11px; color: var(--text2); font-family: var(--mono); }
+.history-val { font-size: 12px; color: var(--text); font-family: var(--mono); font-weight: 500; }
 .history-val.good { color: var(--accent); } .history-val.info { color: var(--accent2); }
 .device-header { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
 .device-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
-.device-name { font-size: 15px; font-weight: 700; color: var(--text); }
-.device-role { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.device-name { font-size: 18px; font-weight: 700; color: var(--text); text-transform: uppercase; letter-spacing: 0.03em; line-height: 1.2; }
+.device-role { font-size: 12px; color: var(--text2); margin-top: 2px; font-family: var(--mono); }
 .pills { display: flex; flex-wrap: wrap; gap: 6px; }
-.pill { font-size: 11px; font-family: 'DM Mono', monospace; padding: 4px 10px; border-radius: 20px; border: 1px solid; }
+.pill { font-size: 11px; font-family: var(--mono); padding: 4px 10px; border-radius: 20px; border: 1px solid; }
 .pill-g { border-color: rgba(200,255,87,0.3); color: #c8ff57; } .pill-b { border-color: rgba(87,200,255,0.3); color: #57c8ff; }
 .pill-o { border-color: rgba(255,107,87,0.3); color: #ff8c7a; } .pill-w { border-color: rgba(255,200,87,0.3); color: #ffc857; }
 .flow-row { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
-.flow-node { font-size: 11px; font-family: 'DM Mono', monospace; padding: 5px 10px; background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; color: var(--text2); }
+.flow-node { font-size: 11px; font-family: var(--mono); padding: 5px 10px; background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; color: var(--text2); }
 .flow-hub { background: rgba(200,255,87,0.07); border-color: rgba(200,255,87,0.25); color: var(--accent); }
 .flow-arrow { color: var(--text3); font-size: 13px; }
 hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
-.empty { text-align: center; padding: 40px 16px; color: var(--text3); font-family: 'DM Mono', monospace; font-size: 12px; line-height: 2; }
+.empty { text-align: center; padding: 40px 16px; color: var(--text3); font-family: var(--mono); font-size: 12px; line-height: 2; }
 .empty-icon { font-size: 28px; margin-bottom: 8px; }
-.logo-bar { padding: 20px 16px 0; display: flex; align-items: baseline; gap: 6px; }
-.logo-text { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
-.logo-dot { color: var(--accent); }
-.logo-ver { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--text3); }
 @media (min-width: 640px) {
   body { padding-bottom: 0; display: flex; }
-  .logo-bar { display: none; }
   .bottom-nav { position: fixed; bottom: auto; top: 0; left: 0; width: 200px; height: 100vh; flex-direction: column; border-top: none; border-right: 1px solid var(--border2); padding-bottom: 0; align-items: stretch; }
   .nav-btn { flex-direction: row; justify-content: flex-start; padding: 12px 20px; gap: 12px; border-left: 2px solid transparent; }
   .nav-btn.active { border-left-color: var(--accent); background: rgba(200,255,87,0.04); }
   .nav-btn svg { width: 18px; height: 18px; }
-  .nav-label { font-size: 12px; }
-  .nav-logo { padding: 24px 20px 20px; border-bottom: 1px solid var(--border); margin-bottom: 8px; font-size: 16px; font-weight: 800; letter-spacing: -0.02em; display: block !important; }
-  .nav-section-lbl { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--text3); letter-spacing: 0.1em; padding: 16px 20px 4px; display: block !important; }
+  .nav-label { font-size: 13px; }
+  .nav-logo { padding: 24px 20px 20px; border-bottom: 1px solid var(--border); margin-bottom: 8px; font-size: 18px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; display: block !important; color: var(--text); }
+  .nav-section-lbl { font-size: 10px; font-family: var(--mono); color: var(--text3); letter-spacing: 0.1em; padding: 16px 20px 4px; display: block !important; }
   .nav-spacer { flex: 1; display: block !important; }
-  .nav-footer { padding: 16px 20px; border-top: 1px solid var(--border); font-size: 10px; font-family: 'DM Mono', monospace; color: var(--text3); line-height: 1.8; display: block !important; }
+  .nav-footer { padding: 16px 20px; border-top: 1px solid var(--border); font-size: 10px; font-family: var(--mono); color: var(--text3); line-height: 1.8; display: block !important; }
   .content-wrap { margin-left: 200px; flex: 1; max-width: 700px; padding: 0 32px; }
   .panel { padding: 0; }
   .page-header { margin: 0 0 20px; padding: 32px 0 16px; }
@@ -113,10 +110,9 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 </style>
 </head>
 <body>
-<div class="logo-bar"><div class="logo-text">Shred<span class="logo-dot">.</span>Stack</div><div class="logo-ver">v1.0</div></div>
 
 <nav class="bottom-nav">
-  <div class="nav-logo" style="display:none">Shred<span style="color:var(--accent)">.</span>Stack</div>
+  <div class="nav-logo" style="display:none">Health Tracker</div>
   <div class="nav-section-lbl" style="display:none">Track</div>
   <button class="nav-btn active" onclick="switchTab('log',this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
@@ -146,7 +142,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 <div class="content-wrap">
 
 <div id="panel-log" class="panel active">
-  <div class="page-header"><div class="page-title">Log today</div><div class="page-sub">Enter stats from your devices</div></div>
+  <div class="page-header"><div class="page-title">Log Today</div><div class="page-sub">Enter stats from your devices</div></div>
   <div class="card"><div class="date-row"><div class="date-label">Date</div><input type="date" id="log-date"/></div></div>
   <div class="form-section">Sleep — Oura Ring</div>
   <div class="form-row">
@@ -184,7 +180,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
     <div class="form-group"><div class="form-label">Fat (g)</div><input type="number" id="fat" placeholder="65" inputmode="numeric"/></div>
   </div>
   <div style="margin-top:24px;padding-bottom:8px">
-    <button class="btn btn-accent" onclick="saveLog()">Save entry</button>
+    <button class="btn btn-accent" onclick="saveLog()">Save Entry</button>
     <span class="save-msg" id="save-msg">✓ Entry saved</span>
   </div>
 </div>
@@ -208,9 +204,9 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 </div>
 
 <div id="panel-setup" class="panel">
-  <div class="page-header"><div class="page-title">My setup</div><div class="page-sub">Devices, apps & data flow</div></div>
+  <div class="page-header"><div class="page-title">My Setup</div><div class="page-sub">Devices, apps & data flow</div></div>
   <div class="card"><div class="device-header"><div class="device-icon" style="background:rgba(200,255,87,0.1)">💍</div><div><div class="device-name">Oura Ring 4</div><div class="device-role">Sleep · HRV · Readiness · Body temp</div></div></div><div class="pills"><span class="pill pill-g">Apple Health</span><span class="pill pill-g">Strava</span><span class="pill pill-g">Oura App</span></div></div>
-  <div class="card"><div class="device-header"><div class="device-icon" style="background:rgba(87,200,255,0.1)">📟</div><div><div class="device-name">Garmin Vívosmart 5</div><div class="device-role">Steps · HR · Workouts · Body Battery</div></div></div><div class="pills"><span class="pill pill-b">Apple Health</span><span class="pill pill-b">MyFitnessPal</span><span class="pill pill-b">Garmin Connect</span></div></div>
+  <div class="card"><div class="device-header"><div class="device-icon" style="background:rgba(87,200,255,0.1)">📟</div><div><div class="device-name">Garmin Vivosmart 5</div><div class="device-role">Steps · HR · Workouts · Body Battery</div></div></div><div class="pills"><span class="pill pill-b">Apple Health</span><span class="pill pill-b">MyFitnessPal</span><span class="pill pill-b">Garmin Connect</span></div></div>
   <div class="card"><div class="device-header"><div class="device-icon" style="background:rgba(255,200,87,0.1)">⚖️</div><div><div class="device-name">Withings Body Smart</div><div class="device-role">Weight · Body fat · Muscle mass</div></div></div><div class="pills"><span class="pill pill-w">Apple Health</span><span class="pill pill-w">Health Mate</span><span class="pill pill-w">MyFitnessPal</span></div></div>
   <div class="card"><div class="device-header"><div class="device-icon" style="background:rgba(255,107,87,0.1)">🥗</div><div><div class="device-name">MyFitnessPal</div><div class="device-role">Calories · Macros · Nutrition</div></div></div><div class="pills"><span class="pill pill-o">Garmin Connect</span><span class="pill pill-o">Withings</span><span class="pill pill-o">Apple Health</span></div></div>
   <div class="card"><div class="device-header"><div class="device-icon" style="background:rgba(200,255,87,0.08)">🏋️</div><div><div class="device-name">Hevy</div><div class="device-role">Lifts · Sets · Reps · Overload</div></div></div><div class="pills"><span class="pill pill-g">Apple Health</span><span class="pill pill-g">Strava</span></div></div>
@@ -228,26 +224,26 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
   <div class="page-header"><div class="page-title">Data</div><div class="page-sub">Backup and restore your entries</div></div>
   <div class="card" style="margin-bottom:14px">
     <div class="card-title">Export backup</div>
-    <p style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px">Download all entries as a JSON file.</p>
-    <button class="btn btn-accent" onclick="exportData()">Download backup</button>
+    <p style="font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:16px;font-family:var(--mono)">Download all entries as a JSON file.</p>
+    <button class="btn btn-accent" onclick="exportData()">Download Backup</button>
   </div>
   <div class="card" style="margin-bottom:14px">
     <div class="card-title">Import backup</div>
-    <p style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px">Restore from a previously exported file. Merges with existing entries.</p>
+    <p style="font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:16px;font-family:var(--mono)">Restore from a previously exported file. Merges with existing entries.</p>
     <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)"/>
-    <button class="btn btn-ghost" onclick="document.getElementById('import-file').click()">Choose backup file</button>
-    <div id="import-msg" style="font-size:12px;font-family:'DM Mono',monospace;color:var(--accent);margin-top:12px;display:none"></div>
+    <button class="btn btn-ghost" onclick="document.getElementById('import-file').click()">Choose Backup File</button>
+    <div id="import-msg" style="font-size:12px;font-family:var(--mono);color:var(--accent);margin-top:12px;display:none"></div>
   </div>
   <div class="card" style="border-color:rgba(255,107,87,0.2)">
     <div class="card-title" style="color:var(--accent3)">Danger zone</div>
-    <p style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px">Permanently delete all entries. Export first if needed.</p>
-    <button class="btn btn-danger" onclick="clearAll()">Delete all entries</button>
+    <p style="font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:16px;font-family:var(--mono)">Permanently delete all entries. Export first if needed.</p>
+    <button class="btn btn-danger" onclick="clearAll()">Delete All Entries</button>
   </div>
 </div>
 
 </div>
 <script>
-const KEY='shredstack_v1';
+const KEY='healthtracker_v1';
 function getEntries(){try{return JSON.parse(localStorage.getItem(KEY))||[];}catch{return[];}}
 function saveEntries(e){localStorage.setItem(KEY,JSON.stringify(e));}
 function switchTab(name,el){
@@ -313,7 +309,7 @@ function metricCard(label,val,delta,pos){
 }
 function renderBarChart(id,data,color){
   const el=g(id);
-  if(!data.length){el.innerHTML='<div style="font-size:11px;font-family:\'DM Mono\',monospace;color:var(--text3);padding:4px 0">No data yet.</div>';return;}
+  if(!data.length){el.innerHTML='<div style="font-size:11px;font-family:var(--mono);color:var(--text3);padding:4px 0">No data yet.</div>';return;}
   const max=Math.max(...data.map(d=>d.val)),min=Math.min(...data.map(d=>d.val)),range=max-min||1;
   el.innerHTML=data.map(d=>{
     const pct=Math.round(15+((d.val-min)/range)*78);
@@ -339,19 +335,19 @@ function renderProgress(){
   if(avgSteps)cards+=metricCard('Avg steps',avgSteps.toLocaleString(),entries.length+'-day avg',null);
   if(latest.hrv)cards+=metricCard('HRV',latest.hrv+'<span> ms</span>','latest reading',null);
   if(latest.readiness)cards+=metricCard('Readiness',latest.readiness+'<span>/100</span>','as of '+latest.date,null);
-  g('summary-cards').innerHTML=cards||'<p style="font-size:12px;color:var(--text3);font-family:\'DM Mono\',monospace">Log data to see metrics.</p>';
+  g('summary-cards').innerHTML=cards||'<p style="font-size:13px;color:var(--text3);font-family:var(--mono)">Log data to see metrics.</p>';
   renderBarChart('weight-chart',wE.slice(0,9).reverse().map(e=>({label:e.date.slice(5),val:e.weight})),'var(--accent)');
   renderBarChart('steps-chart',stE.slice(0,9).reverse().map(e=>({label:e.date.slice(5),val:e.steps})),'var(--accent2)');
   renderBarChart('bf-chart',bfE.slice(0,9).reverse().map(e=>({label:e.date.slice(5),val:e.bodyFat})),'var(--accent3)');
   renderBarChart('hrv-chart',entries.filter(e=>e.hrv).slice(0,9).reverse().map(e=>({label:e.date.slice(5),val:e.hrv})),'var(--accent4)');
   const sleepEl=g('sleep-scores-card');
-  sleepEl.innerHTML=slE.length?slE.slice(0,7).reverse().map(e=>`<div class="sleep-row"><div class="sleep-date">${e.date.slice(5)}</div><div class="sleep-bar-bg"><div class="sleep-bar-fill" style="width:${e.sleepScore}%"></div></div><div class="sleep-num">${e.sleepScore}</div></div>`).join(''):'<div style="font-size:12px;font-family:\'DM Mono\',monospace;color:var(--text3)">No sleep data yet.</div>';
+  sleepEl.innerHTML=slE.length?slE.slice(0,7).reverse().map(e=>`<div class="sleep-row"><div class="sleep-date">${e.date.slice(5)}</div><div class="sleep-bar-bg"><div class="sleep-bar-fill" style="width:${e.sleepScore}%"></div></div><div class="sleep-num">${e.sleepScore}</div></div>`).join(''):'<div style="font-size:12px;font-family:var(--mono);color:var(--text3)">No sleep data yet.</div>';
 }
 function exportData(){
   const entries=getEntries();
   const blob=new Blob([JSON.stringify({version:1,exported:new Date().toISOString(),entries},null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob),a=document.createElement('a');
-  a.href=url;a.download='shredstack-backup-'+todayStr()+'.json';a.click();URL.revokeObjectURL(url);
+  a.href=url;a.download='healthtracker-backup-'+todayStr()+'.json';a.click();URL.revokeObjectURL(url);
 }
 function importData(event){
   const file=event.target.files[0];if(!file)return;
