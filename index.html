@@ -2,670 +2,373 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shred Stack — Health Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Shred Stack</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0a0a0a;
-  --surface: #111111;
-  --surface2: #181818;
-  --surface3: #222222;
-  --border: rgba(255,255,255,0.07);
-  --border2: rgba(255,255,255,0.12);
-  --accent: #c8ff57;
-  --accent2: #57c8ff;
-  --accent3: #ff6b57;
-  --text: #f0f0f0;
-  --text2: #888;
-  --text3: #555;
-  --radius: 14px;
-  --radius-sm: 8px;
+  --bg: #0a0a0a; --surface: #111111; --surface2: #181818; --surface3: #222222;
+  --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.13);
+  --accent: #c8ff57; --accent2: #57c8ff; --accent3: #ff6b57; --accent4: #ffc857;
+  --text: #f0f0f0; --text2: #888; --text3: #444;
+  --radius: 16px; --radius-sm: 10px; --nav-h: 72px;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; min-height: 100vh; }
-
-/* Layout */
-.app { display: flex; min-height: 100vh; }
-.sidebar {
-  width: 220px; flex-shrink: 0; background: var(--surface);
-  border-right: 1px solid var(--border); padding: 28px 0; display: flex;
-  flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh;
-  z-index: 10;
-}
-.main { margin-left: 220px; flex: 1; padding: 40px 48px; max-width: 960px; }
-
-/* Logo */
-.logo { padding: 0 24px 28px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
-.logo-text { font-size: 17px; font-weight: 800; letter-spacing: -0.02em; color: var(--text); }
-.logo-sub { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; margin-top: 2px; letter-spacing: 0.05em; }
-.logo-dot { color: var(--accent); }
-
-/* Nav */
-.nav-item {
-  display: flex; align-items: center; gap: 10px; padding: 10px 24px;
-  font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer;
-  border-left: 2px solid transparent; transition: all 0.15s; letter-spacing: 0.01em;
-}
-.nav-item:hover { color: var(--text); background: var(--surface2); }
-.nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(200,255,87,0.04); }
-.nav-icon { font-size: 16px; width: 18px; text-align: center; }
-
-.nav-section { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--text3); letter-spacing: 0.1em; padding: 20px 24px 6px; }
-
-/* Footer of sidebar */
-.sidebar-footer { margin-top: auto; padding: 20px 24px; border-top: 1px solid var(--border); }
-.badge { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); }
-
-/* Panels */
-.panel { display: none; animation: fadeUp 0.25s ease; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { background: var(--bg); }
+body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; min-height: 100vh; min-height: 100dvh; padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom)); }
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; background: var(--surface); border-top: 1px solid var(--border2); display: flex; height: calc(var(--nav-h) + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); }
+.nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; padding: 10px 4px; cursor: pointer; border: none; background: transparent; color: var(--text3); transition: color 0.15s; font-family: 'Syne', sans-serif; }
+.nav-btn.active { color: var(--accent); }
+.nav-btn svg { width: 22px; height: 22px; stroke-width: 1.8; }
+.nav-label { font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+.panel { display: none; padding: 0 16px; animation: fadeUp 0.2s ease; }
 .panel.active { display: block; }
-@keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-
-/* Page header */
-.page-header { margin-bottom: 36px; }
-.page-title { font-size: 28px; font-weight: 800; letter-spacing: -0.03em; color: var(--text); }
-.page-sub { font-size: 14px; color: var(--text2); margin-top: 4px; }
-
-/* Cards */
-.card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 20px 24px; margin-bottom: 16px;
-}
-.card-title { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; color: var(--text3); text-transform: uppercase; margin-bottom: 16px; font-family: 'DM Mono', monospace; }
-
-/* Device cards */
-.device { display: flex; align-items: flex-start; gap: 16px; }
-.device-icon {
-  width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center;
-  justify-content: center; font-size: 20px; flex-shrink: 0;
-}
-.device-name { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
-.device-role { font-size: 12px; color: var(--text2); margin-bottom: 10px; }
-.pills { display: flex; flex-wrap: wrap; gap: 6px; }
-.pill {
-  font-size: 11px; font-family: 'DM Mono', monospace; padding: 3px 9px;
-  border-radius: 20px; border: 1px solid; font-weight: 400;
-}
-.pill-g { border-color: rgba(200,255,87,0.3); color: #c8ff57; }
-.pill-b { border-color: rgba(87,200,255,0.3); color: #57c8ff; }
-.pill-o { border-color: rgba(255,107,87,0.3); color: #ff8c7a; }
-.pill-w { border-color: rgba(255,200,87,0.3); color: #ffc857; }
-
-/* Flow */
-.flow-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-.flow-node {
-  font-size: 12px; font-family: 'DM Mono', monospace; padding: 5px 12px;
-  background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--radius-sm);
-  color: var(--text2);
-}
-.flow-hub { background: rgba(200,255,87,0.08); border-color: rgba(200,255,87,0.25); color: var(--accent); }
-.flow-arrow { color: var(--text3); font-size: 13px; }
-
-/* Metric grid */
-.metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px; }
-.metric {
-  background: var(--surface2); border-radius: var(--radius-sm); padding: 16px;
-  border: 1px solid var(--border);
-}
-.metric-label { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--text3); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
-.metric-val { font-size: 26px; font-weight: 800; letter-spacing: -0.04em; color: var(--text); }
-.metric-val span { font-size: 13px; font-weight: 400; color: var(--text2); }
-.metric-delta { font-size: 11px; font-family: 'DM Mono', monospace; margin-top: 4px; }
-.delta-pos { color: var(--accent); }
-.delta-neg { color: var(--accent3); }
-
-/* Form */
-.form-section-title {
-  font-size: 11px; font-family: 'DM Mono', monospace; letter-spacing: 0.08em;
-  color: var(--accent); text-transform: uppercase; margin: 24px 0 14px;
-  display: flex; align-items: center; gap: 8px;
-}
-.form-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 4px; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+.page-header { padding: 20px 16px 16px; position: sticky; top: 0; z-index: 10; background: var(--bg); border-bottom: 1px solid var(--border); margin: 0 -16px 20px; }
+.page-title { font-size: 24px; font-weight: 800; letter-spacing: -0.03em; }
+.page-sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 14px; }
+.card-title { font-size: 10px; font-family: 'DM Mono', monospace; letter-spacing: 0.1em; color: var(--text3); text-transform: uppercase; margin-bottom: 14px; font-weight: 500; }
+.form-section { display: flex; align-items: center; gap: 10px; font-size: 10px; font-family: 'DM Mono', monospace; letter-spacing: 0.08em; color: var(--accent); text-transform: uppercase; margin: 22px 0 14px; font-weight: 500; }
+.form-section::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.form-row.single { grid-template-columns: 1fr; }
 .form-group { display: flex; flex-direction: column; gap: 6px; }
-.form-label { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--text2); letter-spacing: 0.04em; }
-input[type=number], input[type=date], input[type=text], select {
-  background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--radius-sm);
-  color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px; padding: 10px 12px;
-  outline: none; transition: border-color 0.15s; width: 100%;
-  -webkit-appearance: none; appearance: none;
-}
+.form-label { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--text2); letter-spacing: 0.03em; }
+input[type=number], input[type=date], select { background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--radius-sm); color: var(--text); font-family: 'DM Mono', monospace; font-size: 15px; padding: 13px 14px; outline: none; transition: border-color 0.15s; width: 100%; -webkit-appearance: none; appearance: none; min-height: 48px; }
 input:focus, select:focus { border-color: var(--accent); }
-select option { background: var(--surface2); }
-.date-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-.date-label { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--text2); }
-input[type=date] { width: 180px; }
-
-/* Buttons */
-.btn {
-  display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px;
-  border-radius: var(--radius-sm); font-family: 'Syne', sans-serif; font-size: 13px;
-  font-weight: 700; cursor: pointer; transition: all 0.15s; border: none; letter-spacing: 0.01em;
-}
+select option { background: #181818; }
+.date-row { display: flex; align-items: center; gap: 10px; }
+.date-label { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--text2); flex-shrink: 0; }
+input[type=date] { flex: 1; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 15px 24px; border-radius: var(--radius-sm); font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s; border: none; min-height: 52px; width: 100%; letter-spacing: 0.01em; }
 .btn-accent { background: var(--accent); color: #0a0a0a; }
-.btn-accent:hover { background: #d8ff70; transform: translateY(-1px); }
-.btn-accent:active { transform: translateY(0); }
+.btn-accent:active { opacity: 0.85; transform: scale(0.98); }
 .btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
-.btn-ghost:hover { border-color: var(--border2); background: var(--surface2); color: var(--text); }
-.btn-danger { background: transparent; color: var(--accent3); border: 1px solid rgba(255,107,87,0.3); font-size: 12px; padding: 7px 14px; }
-.btn-danger:hover { background: rgba(255,107,87,0.08); }
-.save-msg { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--accent); margin-left: 12px; opacity: 0; transition: opacity 0.3s; }
+.btn-ghost:active { background: var(--surface2); }
+.btn-danger { background: transparent; color: var(--accent3); border: 1px solid rgba(255,107,87,0.3); }
+.save-msg { display: block; text-align: center; font-size: 12px; font-family: 'DM Mono', monospace; color: var(--accent); margin-top: 10px; opacity: 0; transition: opacity 0.3s; min-height: 20px; }
 .save-msg.show { opacity: 1; }
-
-/* Table */
-.table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-thead th {
-  font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.08em;
-  color: var(--text3); text-transform: uppercase; padding: 10px 12px;
-  border-bottom: 1px solid var(--border); text-align: left; font-weight: 400;
-}
-tbody td { padding: 12px 12px; border-bottom: 1px solid var(--border); color: var(--text2); font-family: 'DM Mono', monospace; font-size: 12px; }
-tbody tr:last-child td { border-bottom: none; }
-tbody tr:hover td { background: var(--surface2); color: var(--text); }
-.td-date { color: var(--text); font-weight: 500; }
-.td-good { color: var(--accent); }
-.td-workout { color: var(--accent2); }
-
-/* Charts */
-.chart-container { display: flex; align-items: flex-end; gap: 6px; height: 130px; padding: 8px 4px 0; }
-.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; height: 100%; min-width: 0; }
-.bar-top { font-size: 9px; font-family: 'DM Mono', monospace; color: var(--text3); white-space: nowrap; }
+.metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.metric { background: var(--surface2); border-radius: var(--radius-sm); padding: 14px; border: 1px solid var(--border); }
+.metric-label { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--text3); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
+.metric-val { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; color: var(--text); line-height: 1.1; }
+.metric-val span { font-size: 12px; font-weight: 400; color: var(--text2); }
+.metric-delta { font-size: 11px; font-family: 'DM Mono', monospace; margin-top: 4px; }
+.delta-pos { color: var(--accent); } .delta-neg { color: var(--accent3); }
+.chart-wrap { display: flex; align-items: flex-end; gap: 5px; height: 110px; padding: 4px 0 0; }
+.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; min-width: 0; }
+.bar-top { font-size: 9px; font-family: 'DM Mono', monospace; color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; text-align: center; }
 .bar-body { flex: 1; width: 100%; display: flex; align-items: flex-end; }
-.bar-fill { width: 100%; border-radius: 4px 4px 0 0; transition: height 0.4s ease; min-height: 2px; }
+.bar-fill { width: 100%; border-radius: 4px 4px 0 0; min-height: 3px; }
 .bar-bottom { font-size: 9px; font-family: 'DM Mono', monospace; color: var(--text3); white-space: nowrap; }
-
-/* Sleep score bars */
-.sleep-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-.sleep-date { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text2); width: 54px; }
-.sleep-bar-wrap { flex: 1; height: 6px; background: var(--surface3); border-radius: 3px; overflow: hidden; }
-.sleep-bar-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.5s ease; }
-.sleep-score-num { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text); width: 28px; text-align: right; font-weight: 500; }
-
-/* Export/Import */
-.io-row { display: flex; gap: 12px; align-items: center; margin-top: 8px; }
-
-/* Divider */
-.divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
-
-/* Empty state */
-.empty { text-align: center; padding: 48px 24px; color: var(--text3); font-family: 'DM Mono', monospace; font-size: 13px; line-height: 1.8; }
-.empty-icon { font-size: 32px; margin-bottom: 12px; }
-
-/* Section grid for setup */
-.setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-
-/* Scrollbar */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 2px; }
+.sleep-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.sleep-date { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text2); width: 48px; flex-shrink: 0; }
+.sleep-bar-bg { flex: 1; height: 8px; background: var(--surface3); border-radius: 4px; overflow: hidden; }
+.sleep-bar-fill { height: 100%; border-radius: 4px; background: var(--accent); }
+.sleep-num { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text); width: 28px; text-align: right; font-weight: 500; flex-shrink: 0; }
+.history-entry { background: var(--surface2); border-radius: var(--radius-sm); border: 1px solid var(--border); padding: 14px; margin-bottom: 10px; }
+.history-date { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 10px; font-family: 'DM Mono', monospace; }
+.history-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border); }
+.history-row:last-child { border-bottom: none; }
+.history-key { font-size: 11px; color: var(--text2); font-family: 'DM Mono', monospace; }
+.history-val { font-size: 12px; color: var(--text); font-family: 'DM Mono', monospace; font-weight: 500; }
+.history-val.good { color: var(--accent); } .history-val.info { color: var(--accent2); }
+.device-header { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+.device-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.device-name { font-size: 15px; font-weight: 700; color: var(--text); }
+.device-role { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill { font-size: 11px; font-family: 'DM Mono', monospace; padding: 4px 10px; border-radius: 20px; border: 1px solid; }
+.pill-g { border-color: rgba(200,255,87,0.3); color: #c8ff57; } .pill-b { border-color: rgba(87,200,255,0.3); color: #57c8ff; }
+.pill-o { border-color: rgba(255,107,87,0.3); color: #ff8c7a; } .pill-w { border-color: rgba(255,200,87,0.3); color: #ffc857; }
+.flow-row { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+.flow-node { font-size: 11px; font-family: 'DM Mono', monospace; padding: 5px 10px; background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; color: var(--text2); }
+.flow-hub { background: rgba(200,255,87,0.07); border-color: rgba(200,255,87,0.25); color: var(--accent); }
+.flow-arrow { color: var(--text3); font-size: 13px; }
+hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+.empty { text-align: center; padding: 40px 16px; color: var(--text3); font-family: 'DM Mono', monospace; font-size: 12px; line-height: 2; }
+.empty-icon { font-size: 28px; margin-bottom: 8px; }
+.logo-bar { padding: 20px 16px 0; display: flex; align-items: baseline; gap: 6px; }
+.logo-text { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+.logo-dot { color: var(--accent); }
+.logo-ver { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--text3); }
+@media (min-width: 640px) {
+  body { padding-bottom: 0; display: flex; }
+  .logo-bar { display: none; }
+  .bottom-nav { position: fixed; bottom: auto; top: 0; left: 0; width: 200px; height: 100vh; flex-direction: column; border-top: none; border-right: 1px solid var(--border2); padding-bottom: 0; align-items: stretch; }
+  .nav-btn { flex-direction: row; justify-content: flex-start; padding: 12px 20px; gap: 12px; border-left: 2px solid transparent; }
+  .nav-btn.active { border-left-color: var(--accent); background: rgba(200,255,87,0.04); }
+  .nav-btn svg { width: 18px; height: 18px; }
+  .nav-label { font-size: 12px; }
+  .nav-logo { padding: 24px 20px 20px; border-bottom: 1px solid var(--border); margin-bottom: 8px; font-size: 16px; font-weight: 800; letter-spacing: -0.02em; display: block !important; }
+  .nav-section-lbl { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--text3); letter-spacing: 0.1em; padding: 16px 20px 4px; display: block !important; }
+  .nav-spacer { flex: 1; display: block !important; }
+  .nav-footer { padding: 16px 20px; border-top: 1px solid var(--border); font-size: 10px; font-family: 'DM Mono', monospace; color: var(--text3); line-height: 1.8; display: block !important; }
+  .content-wrap { margin-left: 200px; flex: 1; max-width: 700px; padding: 0 32px; }
+  .panel { padding: 0; }
+  .page-header { margin: 0 0 20px; padding: 32px 0 16px; }
+}
 </style>
 </head>
 <body>
+<div class="logo-bar"><div class="logo-text">Shred<span class="logo-dot">.</span>Stack</div><div class="logo-ver">v1.0</div></div>
 
-<div class="app">
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="logo">
-      <div class="logo-text">Shred<span class="logo-dot">.</span>Stack</div>
-      <div class="logo-sub">health tracker v1.0</div>
+<nav class="bottom-nav">
+  <div class="nav-logo" style="display:none">Shred<span style="color:var(--accent)">.</span>Stack</div>
+  <div class="nav-section-lbl" style="display:none">Track</div>
+  <button class="nav-btn active" onclick="switchTab('log',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+    <span class="nav-label">Log</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('progress',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    <span class="nav-label">Progress</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('history',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <span class="nav-label">History</span>
+  </button>
+  <div class="nav-section-lbl" style="display:none">More</div>
+  <button class="nav-btn" onclick="switchTab('setup',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+    <span class="nav-label">Setup</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('data',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
+    <span class="nav-label">Data</span>
+  </button>
+  <div class="nav-spacer" style="display:none"></div>
+  <div class="nav-footer" style="display:none">oura · garmin<br>withings · hevy<br>myfitnesspal</div>
+</nav>
+
+<div class="content-wrap">
+
+<div id="panel-log" class="panel active">
+  <div class="page-header"><div class="page-title">Log today</div><div class="page-sub">Enter stats from your devices</div></div>
+  <div class="card"><div class="date-row"><div class="date-label">Date</div><input type="date" id="log-date"/></div></div>
+  <div class="form-section">Sleep — Oura Ring</div>
+  <div class="form-row">
+    <div class="form-group"><div class="form-label">Sleep score (0–100)</div><input type="number" id="sleep-score" min="0" max="100" placeholder="82" inputmode="numeric"/></div>
+    <div class="form-group"><div class="form-label">Hours slept</div><input type="number" id="sleep-hrs" step="0.5" placeholder="7.5" inputmode="decimal"/></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><div class="form-label">HRV (ms)</div><input type="number" id="hrv" placeholder="58" inputmode="numeric"/></div>
+    <div class="form-group"><div class="form-label">Readiness (0–100)</div><input type="number" id="readiness" min="0" max="100" placeholder="76" inputmode="numeric"/></div>
+  </div>
+  <div class="form-section">Activity — Garmin</div>
+  <div class="form-row">
+    <div class="form-group"><div class="form-label">Steps</div><input type="number" id="steps" placeholder="9200" inputmode="numeric"/></div>
+    <div class="form-group"><div class="form-label">Active calories</div><input type="number" id="active-cal" placeholder="420" inputmode="numeric"/></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><div class="form-label">Body Battery (0–100)</div><input type="number" id="body-battery" min="0" max="100" placeholder="45" inputmode="numeric"/></div>
+    <div class="form-group"><div class="form-label">Workout</div>
+      <select id="workout-type"><option value="">— rest day —</option><option>Lifting</option><option>Pickleball</option><option>Running</option><option>Walking</option><option>HIIT</option><option>Cardio</option><option>Other</option></select>
     </div>
-
-    <div class="nav-section">Track</div>
-    <div class="nav-item active" onclick="switchTab('log', this)">
-      <span class="nav-icon">✦</span> Log today
-    </div>
-    <div class="nav-item" onclick="switchTab('history', this)">
-      <span class="nav-icon">≡</span> History
-    </div>
-    <div class="nav-item" onclick="switchTab('progress', this)">
-      <span class="nav-icon">↗</span> Progress
-    </div>
-
-    <div class="nav-section">Reference</div>
-    <div class="nav-item" onclick="switchTab('setup', this)">
-      <span class="nav-icon">◈</span> My setup
-    </div>
-    <div class="nav-item" onclick="switchTab('data', this)">
-      <span class="nav-icon">⇅</span> Export / import
-    </div>
-
-    <div class="sidebar-footer">
-      <div class="badge">oura · garmin · withings</div>
-      <div class="badge" style="margin-top:4px">mfp · hevy · apple health</div>
-    </div>
-  </aside>
-
-  <!-- Main content -->
-  <main class="main">
-
-    <!-- LOG TODAY -->
-    <div id="panel-log" class="panel active">
-      <div class="page-header">
-        <div class="page-title">Log today</div>
-        <div class="page-sub">Enter your daily stats from each device and app</div>
-      </div>
-
-      <div class="date-row">
-        <div class="date-label">Date</div>
-        <input type="date" id="log-date" />
-      </div>
-
-      <div class="form-section-title">Sleep — Oura Ring</div>
-      <div class="form-grid">
-        <div class="form-group"><div class="form-label">Sleep score (0–100)</div><input type="number" id="sleep-score" min="0" max="100" placeholder="82" /></div>
-        <div class="form-group"><div class="form-label">Hours slept</div><input type="number" id="sleep-hrs" min="0" max="24" step="0.5" placeholder="7.5" /></div>
-        <div class="form-group"><div class="form-label">HRV (ms)</div><input type="number" id="hrv" placeholder="58" /></div>
-        <div class="form-group"><div class="form-label">Readiness score (0–100)</div><input type="number" id="readiness" min="0" max="100" placeholder="76" /></div>
-      </div>
-
-      <div class="form-section-title">Activity — Garmin Vívosmart 5</div>
-      <div class="form-grid">
-        <div class="form-group"><div class="form-label">Steps</div><input type="number" id="steps" placeholder="9200" /></div>
-        <div class="form-group"><div class="form-label">Active calories</div><input type="number" id="active-cal" placeholder="420" /></div>
-        <div class="form-group"><div class="form-label">Body Battery (end of day)</div><input type="number" id="body-battery" min="0" max="100" placeholder="45" /></div>
-        <div class="form-group"><div class="form-label">Workout type</div>
-          <select id="workout-type">
-            <option value="">— rest day —</option>
-            <option>Lifting</option>
-            <option>Pickleball</option>
-            <option>Running</option>
-            <option>Walking</option>
-            <option>HIIT</option>
-            <option>Cardio</option>
-            <option>Other</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-section-title">Body composition — Withings Scale</div>
-      <div class="form-grid">
-        <div class="form-group"><div class="form-label">Weight (lbs)</div><input type="number" id="weight" step="0.1" placeholder="185.4" /></div>
-        <div class="form-group"><div class="form-label">Body fat %</div><input type="number" id="body-fat" step="0.1" placeholder="18.2" /></div>
-        <div class="form-group"><div class="form-label">Muscle mass (lbs)</div><input type="number" id="muscle" step="0.1" placeholder="148.0" /></div>
-      </div>
-
-      <div class="form-section-title">Nutrition — MyFitnessPal</div>
-      <div class="form-grid">
-        <div class="form-group"><div class="form-label">Calories in</div><input type="number" id="cal-in" placeholder="2100" /></div>
-        <div class="form-group"><div class="form-label">Protein (g)</div><input type="number" id="protein" placeholder="185" /></div>
-        <div class="form-group"><div class="form-label">Carbs (g)</div><input type="number" id="carbs" placeholder="220" /></div>
-        <div class="form-group"><div class="form-label">Fat (g)</div><input type="number" id="fat" placeholder="65" /></div>
-      </div>
-
-      <div style="display:flex; align-items:center; margin-top:28px;">
-        <button class="btn btn-accent" onclick="saveLog()">Save entry</button>
-        <span class="save-msg" id="save-msg">✓ Saved</span>
-      </div>
-    </div>
-
-    <!-- HISTORY -->
-    <div id="panel-history" class="panel">
-      <div class="page-header">
-        <div class="page-title">History</div>
-        <div class="page-sub">All logged entries</div>
-      </div>
-      <div style="display:flex; justify-content:flex-end; margin-bottom:16px;">
-        <button class="btn btn-danger" onclick="clearAll()">Clear all entries</button>
-      </div>
-      <div class="card">
-        <div class="table-wrap" id="history-content">
-          <div class="empty"><div class="empty-icon">◎</div>No entries yet.<br>Log your first day to get started.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- PROGRESS -->
-    <div id="panel-progress" class="panel">
-      <div class="page-header">
-        <div class="page-title">Progress</div>
-        <div class="page-sub">Trends across all your tracked metrics</div>
-      </div>
-      <div id="progress-empty" class="card" style="display:none">
-        <div class="empty"><div class="empty-icon">◎</div>Log at least one entry to see progress.</div>
-      </div>
-      <div id="progress-content">
-        <div class="metric-grid" id="summary-cards"></div>
-        <div class="card">
-          <div class="card-title">Weight trend (lbs)</div>
-          <div class="chart-container" id="weight-chart"></div>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px;">
-          <div class="card">
-            <div class="card-title">Sleep scores</div>
-            <div id="sleep-scores-card"></div>
-          </div>
-          <div class="card">
-            <div class="card-title">Daily steps</div>
-            <div class="chart-container" id="steps-chart"></div>
-          </div>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px;">
-          <div class="card">
-            <div class="card-title">Body fat %</div>
-            <div class="chart-container" id="bf-chart"></div>
-          </div>
-          <div class="card">
-            <div class="card-title">HRV (ms)</div>
-            <div class="chart-container" id="hrv-chart"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SETUP -->
-    <div id="panel-setup" class="panel">
-      <div class="page-header">
-        <div class="page-title">My setup</div>
-        <div class="page-sub">Devices, apps, and how everything connects</div>
-      </div>
-
-      <div class="setup-grid">
-        <div class="card">
-          <div class="device">
-            <div class="device-icon" style="background:rgba(200,255,87,0.1)">💍</div>
-            <div>
-              <div class="device-name">Oura Ring 4</div>
-              <div class="device-role">Sleep · HRV · Readiness · Body temp</div>
-              <div class="pills">
-                <span class="pill pill-g">Apple Health</span>
-                <span class="pill pill-g">Strava</span>
-                <span class="pill pill-g">Oura App</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="device">
-            <div class="device-icon" style="background:rgba(87,200,255,0.1)">📟</div>
-            <div>
-              <div class="device-name">Garmin Vívosmart 5</div>
-              <div class="device-role">Steps · HR · Workouts · Body Battery</div>
-              <div class="pills">
-                <span class="pill pill-b">Apple Health</span>
-                <span class="pill pill-b">MyFitnessPal</span>
-                <span class="pill pill-b">Garmin Connect</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="device">
-            <div class="device-icon" style="background:rgba(255,200,87,0.1)">⚖️</div>
-            <div>
-              <div class="device-name">Withings Body Smart</div>
-              <div class="device-role">Weight · Body fat · Muscle mass · BMI</div>
-              <div class="pills">
-                <span class="pill pill-w">Apple Health</span>
-                <span class="pill pill-w">Health Mate</span>
-                <span class="pill pill-w">MyFitnessPal</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="device">
-            <div class="device-icon" style="background:rgba(255,107,87,0.1)">🥗</div>
-            <div>
-              <div class="device-name">MyFitnessPal</div>
-              <div class="device-role">Calories · Macros · Nutrition</div>
-              <div class="pills">
-                <span class="pill pill-o">Garmin Connect</span>
-                <span class="pill pill-o">Withings</span>
-                <span class="pill pill-o">Apple Health</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="device">
-            <div class="device-icon" style="background:rgba(200,255,87,0.08)">🏋️</div>
-            <div>
-              <div class="device-name">Hevy</div>
-              <div class="device-role">Lifts · Sets · Reps · Overload</div>
-              <div class="pills">
-                <span class="pill pill-g">Apple Health</span>
-                <span class="pill pill-g">Strava</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <hr class="divider">
-      <div class="card-title" style="margin-bottom:14px">Data flow — Apple Health as central hub</div>
-      <div class="card">
-        <div class="flow-row"><span class="flow-node">Oura Ring</span><span class="flow-arrow">→</span><span class="flow-node flow-hub">Apple Health</span><span class="flow-arrow">→</span><span class="flow-node">Vora / Shred.Stack</span></div>
-        <div class="flow-row"><span class="flow-node">Garmin Vívosmart 5</span><span class="flow-arrow">→</span><span class="flow-node flow-hub">Apple Health</span><span class="flow-arrow">→</span><span class="flow-node">MyFitnessPal</span></div>
-        <div class="flow-row"><span class="flow-node">Withings Scale</span><span class="flow-arrow">→</span><span class="flow-node flow-hub">Apple Health</span><span class="flow-arrow">→</span><span class="flow-node">Trend tracking</span></div>
-        <div class="flow-row"><span class="flow-node">Hevy</span><span class="flow-arrow">→</span><span class="flow-node flow-hub">Apple Health</span><span class="flow-arrow">→</span><span class="flow-node">Activity summary</span></div>
-      </div>
-    </div>
-
-    <!-- EXPORT / IMPORT -->
-    <div id="panel-data" class="panel">
-      <div class="page-header">
-        <div class="page-title">Export / import</div>
-        <div class="page-sub">Back up your data or restore it on a new browser</div>
-      </div>
-      <div class="card">
-        <div class="card-title">Export data</div>
-        <p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6;">Download all your logged entries as a JSON file. Save this somewhere safe — you can re-import it anytime.</p>
-        <button class="btn btn-accent" onclick="exportData()">↓ Download backup</button>
-      </div>
-      <div class="card" style="margin-top:16px;">
-        <div class="card-title">Import data</div>
-        <p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6;">Restore from a previously exported backup file. This will merge with your existing entries.</p>
-        <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)" />
-        <button class="btn btn-ghost" onclick="document.getElementById('import-file').click()">↑ Choose backup file</button>
-        <div id="import-msg" style="font-size:12px;font-family:'DM Mono',monospace;color:var(--accent);margin-top:12px;display:none;"></div>
-      </div>
-      <div class="card" style="margin-top:16px; border-color:rgba(255,107,87,0.2);">
-        <div class="card-title" style="color:var(--accent3)">Danger zone</div>
-        <p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6;">Permanently delete all logged entries. Export a backup first.</p>
-        <button class="btn btn-danger" onclick="clearAll()">Delete all entries</button>
-      </div>
-    </div>
-
-  </main>
+  </div>
+  <div class="form-section">Body — Withings Scale</div>
+  <div class="form-row">
+    <div class="form-group"><div class="form-label">Weight (lbs)</div><input type="number" id="weight" step="0.1" placeholder="185.4" inputmode="decimal"/></div>
+    <div class="form-group"><div class="form-label">Body fat %</div><input type="number" id="body-fat" step="0.1" placeholder="18.2" inputmode="decimal"/></div>
+  </div>
+  <div class="form-row single"><div class="form-group"><div class="form-label">Muscle mass (lbs)</div><input type="number" id="muscle" step="0.1" placeholder="148.0" inputmode="decimal"/></div></div>
+  <div class="form-section">Nutrition — MyFitnessPal</div>
+  <div class="form-row">
+    <div class="form-group"><div class="form-label">Calories in</div><input type="number" id="cal-in" placeholder="2100" inputmode="numeric"/></div>
+    <div class="form-group"><div class="form-label">Protein (g)</div><input type="number" id="protein" placeholder="185" inputmode="numeric"/></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><div class="form-label">Carbs (g)</div><input type="number" id="carbs" placeholder="220" inputmode="numeric"/></div>
+    <div class="form-group"><div class="form-label">Fat (g)</div><input type="number" id="fat" placeholder="65" inputmode="numeric"/></div>
+  </div>
+  <div style="margin-top:24px;padding-bottom:8px">
+    <button class="btn btn-accent" onclick="saveLog()">Save entry</button>
+    <span class="save-msg" id="save-msg">✓ Entry saved</span>
+  </div>
 </div>
 
+<div id="panel-progress" class="panel">
+  <div class="page-header"><div class="page-title">Progress</div><div class="page-sub">Your trends over time</div></div>
+  <div id="progress-empty" style="display:none"><div class="empty"><div class="empty-icon">◎</div>Log at least one entry<br>to see your progress.</div></div>
+  <div id="progress-content">
+    <div class="metrics-grid" id="summary-cards"></div>
+    <div class="card"><div class="card-title">Weight (lbs)</div><div class="chart-wrap" id="weight-chart"></div></div>
+    <div class="card"><div class="card-title">Sleep scores</div><div id="sleep-scores-card"></div></div>
+    <div class="card"><div class="card-title">Daily steps</div><div class="chart-wrap" id="steps-chart"></div></div>
+    <div class="card"><div class="card-title">Body fat %</div><div class="chart-wrap" id="bf-chart"></div></div>
+    <div class="card"><div class="card-title">HRV (ms)</div><div class="chart-wrap" id="hrv-chart"></div></div>
+  </div>
+</div>
+
+<div id="panel-history" class="panel">
+  <div class="page-header"><div class="page-title">History</div><div class="page-sub">All logged entries</div></div>
+  <div id="history-content"><div class="empty"><div class="empty-icon">◎</div>No entries yet.<br>Log your first day.</div></div>
+</div>
+
+<div id="panel-setup" class="panel">
+  <div class="page-header"><div class="page-title">My setup</div><div class="page-sub">Devices, apps & data flow</div></div>
+  <div class="card"><div class="device-header"><div class="device-icon" style="background:rgba(200,255,87,0.1)">💍</div><div><div class="device-name">Oura Ring 4</div><div class="device-role">Sleep · HRV · Readiness · Body temp</div></div></div><div class="pills"><span class="pill pill-g">Apple Health</span><span class="pill pill-g">Strava</span><span class="pill pill-g">Oura App</span></div></div>
+  <div class="card"><div class="device-header"><div class="device-icon" style="background:rgba(87,200,255,0.1)">📟</div><div><div class="device-name">Garmin Vívosmart 5</div><div class="device-role">Steps · HR · Workouts · Body Battery</div></div></div><div class="pills"><span class="pill pill-b">Apple Health</span><span class="pill pill-b">MyFitnessPal</span><span class="pill pill-b">Garmin Connect</span></div></div>
+  <div class="card"><div class="device-header"><div class="device-icon" style="background:rgba(255,200,87,0.1)">⚖️</div><div><div class="device-name">Withings Body Smart</div><div class="device-role">Weight · Body fat · Muscle mass</div></div></div><div class="pills"><span class="pill pill-w">Apple Health</span><span class="pill pill-w">Health Mate</span><span class="pill pill-w">MyFitnessPal</span></div></div>
+  <div class="card"><div class="device-header"><div class="device-icon" style="background:rgba(255,107,87,0.1)">🥗</div><div><div class="device-name">MyFitnessPal</div><div class="device-role">Calories · Macros · Nutrition</div></div></div><div class="pills"><span class="pill pill-o">Garmin Connect</span><span class="pill pill-o">Withings</span><span class="pill pill-o">Apple Health</span></div></div>
+  <div class="card"><div class="device-header"><div class="device-icon" style="background:rgba(200,255,87,0.08)">🏋️</div><div><div class="device-name">Hevy</div><div class="device-role">Lifts · Sets · Reps · Overload</div></div></div><div class="pills"><span class="pill pill-g">Apple Health</span><span class="pill pill-g">Strava</span></div></div>
+  <hr>
+  <div class="card-title" style="margin-bottom:12px">Data flow — Apple Health hub</div>
+  <div class="card">
+    <div class="flow-row"><span class="flow-node">Oura Ring</span><span class="flow-arrow">→</span><span class="flow-node flow-hub">Apple Health</span><span class="flow-arrow">→</span><span class="flow-node">Vora</span></div>
+    <div class="flow-row"><span class="flow-node">Garmin</span><span class="flow-arrow">→</span><span class="flow-node flow-hub">Apple Health</span><span class="flow-arrow">→</span><span class="flow-node">MyFitnessPal</span></div>
+    <div class="flow-row"><span class="flow-node">Withings</span><span class="flow-arrow">→</span><span class="flow-node flow-hub">Apple Health</span><span class="flow-arrow">→</span><span class="flow-node">Trends</span></div>
+    <div class="flow-row"><span class="flow-node">Hevy</span><span class="flow-arrow">→</span><span class="flow-node flow-hub">Apple Health</span><span class="flow-arrow">→</span><span class="flow-node">Activity</span></div>
+  </div>
+</div>
+
+<div id="panel-data" class="panel">
+  <div class="page-header"><div class="page-title">Data</div><div class="page-sub">Backup and restore your entries</div></div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-title">Export backup</div>
+    <p style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px">Download all entries as a JSON file.</p>
+    <button class="btn btn-accent" onclick="exportData()">Download backup</button>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-title">Import backup</div>
+    <p style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px">Restore from a previously exported file. Merges with existing entries.</p>
+    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)"/>
+    <button class="btn btn-ghost" onclick="document.getElementById('import-file').click()">Choose backup file</button>
+    <div id="import-msg" style="font-size:12px;font-family:'DM Mono',monospace;color:var(--accent);margin-top:12px;display:none"></div>
+  </div>
+  <div class="card" style="border-color:rgba(255,107,87,0.2)">
+    <div class="card-title" style="color:var(--accent3)">Danger zone</div>
+    <p style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px">Permanently delete all entries. Export first if needed.</p>
+    <button class="btn btn-danger" onclick="clearAll()">Delete all entries</button>
+  </div>
+</div>
+
+</div>
 <script>
-const KEY = 'shredstack_v1';
-
-function getEntries() {
-  try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; }
+const KEY='shredstack_v1';
+function getEntries(){try{return JSON.parse(localStorage.getItem(KEY))||[];}catch{return[];}}
+function saveEntries(e){localStorage.setItem(KEY,JSON.stringify(e));}
+function switchTab(name,el){
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-'+name).classList.add('active');
+  window.scrollTo(0,0);
+  if(name==='history')renderHistory();
+  if(name==='progress')renderProgress();
 }
-function saveEntries(e) { localStorage.setItem(KEY, JSON.stringify(e)); }
-
-function switchTab(name, el) {
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  if (el) el.classList.add('active');
-  document.getElementById('panel-' + name).classList.add('active');
-  if (name === 'history') renderHistory();
-  if (name === 'progress') renderProgress();
-}
-
-function todayStr() { return new Date().toISOString().slice(0, 10); }
-document.getElementById('log-date').value = todayStr();
-
-function saveLog() {
-  const g = id => document.getElementById(id);
-  const entry = {
-    date: g('log-date').value || todayStr(),
-    sleepScore: +g('sleep-score').value || null,
-    sleepHrs: +g('sleep-hrs').value || null,
-    hrv: +g('hrv').value || null,
-    readiness: +g('readiness').value || null,
-    steps: +g('steps').value || null,
-    activeCal: +g('active-cal').value || null,
-    bodyBattery: +g('body-battery').value || null,
-    workoutType: g('workout-type').value || null,
-    weight: +g('weight').value || null,
-    bodyFat: +g('body-fat').value || null,
-    muscle: +g('muscle').value || null,
-    calIn: +g('cal-in').value || null,
-    protein: +g('protein').value || null,
-    carbs: +g('carbs').value || null,
-    fat: +g('fat').value || null,
+function todayStr(){return new Date().toISOString().slice(0,10);}
+document.getElementById('log-date').value=todayStr();
+function g(id){return document.getElementById(id);}
+function saveLog(){
+  const entry={
+    date:g('log-date').value||todayStr(),
+    sleepScore:+g('sleep-score').value||null,sleepHrs:+g('sleep-hrs').value||null,
+    hrv:+g('hrv').value||null,readiness:+g('readiness').value||null,
+    steps:+g('steps').value||null,activeCal:+g('active-cal').value||null,
+    bodyBattery:+g('body-battery').value||null,workoutType:g('workout-type').value||null,
+    weight:+g('weight').value||null,bodyFat:+g('body-fat').value||null,
+    muscle:+g('muscle').value||null,calIn:+g('cal-in').value||null,
+    protein:+g('protein').value||null,carbs:+g('carbs').value||null,fat:+g('fat').value||null,
   };
-  const entries = getEntries();
-  const idx = entries.findIndex(e => e.date === entry.date);
-  if (idx >= 0) entries[idx] = entry; else entries.push(entry);
-  entries.sort((a, b) => b.date.localeCompare(a.date));
+  const entries=getEntries();
+  const idx=entries.findIndex(e=>e.date===entry.date);
+  if(idx>=0)entries[idx]=entry;else entries.push(entry);
+  entries.sort((a,b)=>b.date.localeCompare(a.date));
   saveEntries(entries);
-  const msg = document.getElementById('save-msg');
-  msg.classList.add('show');
-  setTimeout(() => msg.classList.remove('show'), 2200);
+  const msg=g('save-msg');msg.classList.add('show');
+  setTimeout(()=>msg.classList.remove('show'),2500);
 }
-
-function clearAll() {
-  if (!confirm('Delete all entries? Export a backup first if you want to keep your data.')) return;
-  saveEntries([]);
-  renderHistory();
+function clearAll(){
+  if(!confirm('Delete all entries? Export a backup first if you want to keep your data.'))return;
+  saveEntries([]);renderHistory();
 }
-
-function fmt(v, unit) { return (v !== null && v !== undefined && v !== 0) ? v + (unit ? unit : '') : '—'; }
-
-function renderHistory() {
-  const entries = getEntries();
-  const el = document.getElementById('history-content');
-  if (!entries.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-icon">◎</div>No entries yet.<br>Log your first day to get started.</div>';
-    return;
-  }
-  let html = '<table><thead><tr><th>Date</th><th>Sleep</th><th>HRV</th><th>Steps</th><th>Weight</th><th>Body fat</th><th>Calories in</th><th>Protein</th><th>Workout</th></tr></thead><tbody>';
-  entries.forEach(e => {
-    const sleepClass = e.sleepScore >= 85 ? 'td-good' : '';
-    html += `<tr>
-      <td class="td-date">${e.date}</td>
-      <td class="${sleepClass}">${e.sleepScore ? e.sleepScore + '/100' : '—'}</td>
-      <td>${fmt(e.hrv, 'ms')}</td>
-      <td>${e.steps ? e.steps.toLocaleString() : '—'}</td>
-      <td>${fmt(e.weight, ' lbs')}</td>
-      <td>${fmt(e.bodyFat, '%')}</td>
-      <td>${e.calIn ? e.calIn.toLocaleString() : '—'}</td>
-      <td>${fmt(e.protein, 'g')}</td>
-      <td class="td-workout">${e.workoutType || '—'}</td>
-    </tr>`;
-  });
-  html += '</tbody></table>';
-  el.innerHTML = html;
-}
-
-function metricCard(label, value, delta, deltaPos) {
-  const dClass = deltaPos === true ? 'delta-pos' : deltaPos === false ? 'delta-neg' : '';
-  return `<div class="metric">
-    <div class="metric-label">${label}</div>
-    <div class="metric-val">${value}</div>
-    ${delta ? `<div class="metric-delta ${dClass}">${delta}</div>` : ''}
-  </div>`;
-}
-
-function renderBarChart(id, data, color) {
-  const el = document.getElementById(id);
-  if (!data.length) { el.innerHTML = '<div style="font-size:12px;font-family:\'DM Mono\',monospace;color:var(--text3);padding:8px">No data yet.</div>'; return; }
-  const max = Math.max(...data.map(d => d.val));
-  const min = Math.min(...data.map(d => d.val));
-  const range = max - min || 1;
-  el.innerHTML = data.map(d => {
-    const pct = Math.round(20 + ((d.val - min) / range) * 75);
-    const disp = d.val >= 1000 ? (d.val / 1000).toFixed(1) + 'k' : d.val % 1 !== 0 ? d.val.toFixed(1) : d.val;
-    return `<div class="bar-col">
-      <div class="bar-top">${disp}</div>
-      <div class="bar-body"><div class="bar-fill" style="height:${pct}%;background:${color}"></div></div>
-      <div class="bar-bottom">${d.label}</div>
-    </div>`;
+function renderHistory(){
+  const entries=getEntries(),el=g('history-content');
+  if(!entries.length){el.innerHTML='<div class="empty"><div class="empty-icon">◎</div>No entries yet.<br>Log your first day.</div>';return;}
+  el.innerHTML=entries.map(e=>{
+    const rows=[
+      e.sleepScore?['Sleep score',e.sleepScore+'/100','good']:null,
+      e.sleepHrs?['Hours slept',e.sleepHrs+' hrs','']:null,
+      e.hrv?['HRV',e.hrv+' ms','']:null,
+      e.readiness?['Readiness',e.readiness+'/100','']:null,
+      e.steps?['Steps',e.steps.toLocaleString(),'info']:null,
+      e.activeCal?['Active cal',e.activeCal.toLocaleString(),'']:null,
+      e.bodyBattery?['Body Battery',e.bodyBattery+'/100','']:null,
+      e.workoutType?['Workout',e.workoutType,'info']:null,
+      e.weight?['Weight',e.weight+' lbs','']:null,
+      e.bodyFat?['Body fat',e.bodyFat+'%','']:null,
+      e.muscle?['Muscle',e.muscle+' lbs','']:null,
+      e.calIn?['Calories in',e.calIn.toLocaleString(),'']:null,
+      e.protein?['Protein',e.protein+'g','']:null,
+    ].filter(Boolean);
+    return`<div class="history-entry"><div class="history-date">${e.date}</div>${rows.map(([k,v,c])=>`<div class="history-row"><span class="history-key">${k}</span><span class="history-val ${c}">${v}</span></div>`).join('')}</div>`;
   }).join('');
 }
-
-function renderProgress() {
-  const entries = getEntries();
-  const peEl = document.getElementById('progress-empty');
-  const pcEl = document.getElementById('progress-content');
-  if (!entries.length) { peEl.style.display = 'block'; pcEl.style.display = 'none'; return; }
-  peEl.style.display = 'none'; pcEl.style.display = 'block';
-
-  const latest = entries[0];
-  const oldest = entries[entries.length - 1];
-  const withW = entries.filter(e => e.weight);
-  const withBF = entries.filter(e => e.bodyFat);
-  const withSleep = entries.filter(e => e.sleepScore);
-  const withSteps = entries.filter(e => e.steps);
-
-  const wDiff = withW.length > 1 ? (latest.weight - oldest.weight).toFixed(1) : null;
-  const bfDiff = withBF.length > 1 ? (latest.bodyFat - oldest.bodyFat).toFixed(1) : null;
-  const avgSleep = withSleep.length ? Math.round(withSleep.reduce((a, e) => a + e.sleepScore, 0) / withSleep.length) : null;
-  const avgSteps = withSteps.length ? Math.round(withSteps.reduce((a, e) => a + e.steps, 0) / withSteps.length) : null;
-
-  let cards = '';
-  if (latest.weight) cards += metricCard('Current weight', latest.weight + '<span> lbs</span>', wDiff !== null ? (wDiff > 0 ? '+' + wDiff + ' lbs since start' : wDiff + ' lbs since start') : null, wDiff !== null ? wDiff < 0 : null);
-  if (latest.bodyFat) cards += metricCard('Body fat', latest.bodyFat + '<span>%</span>', bfDiff !== null ? (bfDiff > 0 ? '+' + bfDiff + '% since start' : bfDiff + '% since start') : null, bfDiff !== null ? bfDiff < 0 : null);
-  if (avgSleep) cards += metricCard('Avg sleep score', avgSleep + '<span>/100</span>', entries.length + '-day average', null);
-  if (avgSteps) cards += metricCard('Avg daily steps', avgSteps.toLocaleString(), entries.length + '-day average', null);
-  if (latest.hrv) cards += metricCard('Latest HRV', latest.hrv + '<span> ms</span>', null, null);
-  if (latest.readiness) cards += metricCard('Readiness', latest.readiness + '<span>/100</span>', 'as of ' + latest.date, null);
-  document.getElementById('summary-cards').innerHTML = cards || '<p style="font-size:13px;color:var(--text3);font-family:\'DM Mono\',monospace">Log more data to see metrics here.</p>';
-
-  renderBarChart('weight-chart', withW.slice(0, 8).reverse().map(e => ({ label: e.date.slice(5), val: e.weight })), 'var(--accent)');
-  renderBarChart('steps-chart', withSteps.slice(0, 8).reverse().map(e => ({ label: e.date.slice(5), val: e.steps })), 'var(--accent2)');
-  renderBarChart('bf-chart', withBF.slice(0, 8).reverse().map(e => ({ label: e.date.slice(5), val: e.bodyFat })), 'var(--accent3)');
-  renderBarChart('hrv-chart', entries.filter(e => e.hrv).slice(0, 8).reverse().map(e => ({ label: e.date.slice(5), val: e.hrv })), '#ffc857');
-
-  const sleepEl = document.getElementById('sleep-scores-card');
-  if (withSleep.length) {
-    sleepEl.innerHTML = withSleep.slice(0, 7).reverse().map(e => `
-      <div class="sleep-row">
-        <div class="sleep-date">${e.date.slice(5)}</div>
-        <div class="sleep-bar-wrap"><div class="sleep-bar-fill" style="width:${e.sleepScore}%"></div></div>
-        <div class="sleep-score-num">${e.sleepScore}</div>
-      </div>`).join('');
-  } else {
-    sleepEl.innerHTML = '<div style="font-size:12px;font-family:\'DM Mono\',monospace;color:var(--text3)">No sleep data logged yet.</div>';
-  }
+function metricCard(label,val,delta,pos){
+  const dc=pos===true?'delta-pos':pos===false?'delta-neg':'';
+  return`<div class="metric"><div class="metric-label">${label}</div><div class="metric-val">${val}</div>${delta?`<div class="metric-delta ${dc}">${delta}</div>`:''}</div>`;
 }
-
-function exportData() {
-  const entries = getEntries();
-  const blob = new Blob([JSON.stringify({ version: 1, exported: new Date().toISOString(), entries }, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'shredstack-backup-' + todayStr() + '.json';
-  a.click(); URL.revokeObjectURL(url);
+function renderBarChart(id,data,color){
+  const el=g(id);
+  if(!data.length){el.innerHTML='<div style="font-size:11px;font-family:\'DM Mono\',monospace;color:var(--text3);padding:4px 0">No data yet.</div>';return;}
+  const max=Math.max(...data.map(d=>d.val)),min=Math.min(...data.map(d=>d.val)),range=max-min||1;
+  el.innerHTML=data.map(d=>{
+    const pct=Math.round(15+((d.val-min)/range)*78);
+    const disp=d.val>=1000?(d.val/1000).toFixed(1)+'k':d.val%1!==0?d.val.toFixed(1):d.val;
+    return`<div class="bar-col"><div class="bar-top">${disp}</div><div class="bar-body"><div class="bar-fill" style="height:${pct}%;background:${color}"></div></div><div class="bar-bottom">${d.label}</div></div>`;
+  }).join('');
 }
-
-function importData(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const data = JSON.parse(e.target.result);
-      const incoming = data.entries || data;
-      if (!Array.isArray(incoming)) throw new Error('Invalid format');
-      const existing = getEntries();
-      const merged = [...existing];
-      incoming.forEach(entry => {
-        const idx = merged.findIndex(e => e.date === entry.date);
-        if (idx >= 0) merged[idx] = entry; else merged.push(entry);
-      });
-      merged.sort((a, b) => b.date.localeCompare(a.date));
-      saveEntries(merged);
-      const msg = document.getElementById('import-msg');
-      msg.textContent = '✓ Imported ' + incoming.length + ' entries successfully.';
-      msg.style.display = 'block';
-      setTimeout(() => msg.style.display = 'none', 3000);
-    } catch {
-      alert('Could not read file. Make sure it\'s a valid Shred.Stack backup.');
-    }
+function renderProgress(){
+  const entries=getEntries(),pe=g('progress-empty'),pc=g('progress-content');
+  if(!entries.length){pe.style.display='block';pc.style.display='none';return;}
+  pe.style.display='none';pc.style.display='block';
+  const latest=entries[0],oldest=entries[entries.length-1];
+  const wE=entries.filter(e=>e.weight),bfE=entries.filter(e=>e.bodyFat);
+  const slE=entries.filter(e=>e.sleepScore),stE=entries.filter(e=>e.steps);
+  const wDiff=wE.length>1?(latest.weight-oldest.weight).toFixed(1):null;
+  const bfDiff=bfE.length>1?(latest.bodyFat-oldest.bodyFat).toFixed(1):null;
+  const avgSleep=slE.length?Math.round(slE.reduce((a,e)=>a+e.sleepScore,0)/slE.length):null;
+  const avgSteps=stE.length?Math.round(stE.reduce((a,e)=>a+e.steps,0)/stE.length):null;
+  let cards='';
+  if(latest.weight)cards+=metricCard('Weight',latest.weight+'<span> lbs</span>',wDiff!==null?(wDiff>0?'+'+wDiff+' lbs':wDiff+' lbs since start'):null,wDiff!==null?wDiff<0:null);
+  if(latest.bodyFat)cards+=metricCard('Body fat',latest.bodyFat+'<span>%</span>',bfDiff!==null?(bfDiff>0?'+'+bfDiff+'%':bfDiff+'% since start'):null,bfDiff!==null?bfDiff<0:null);
+  if(avgSleep)cards+=metricCard('Avg sleep',avgSleep+'<span>/100</span>',entries.length+'-day avg',null);
+  if(avgSteps)cards+=metricCard('Avg steps',avgSteps.toLocaleString(),entries.length+'-day avg',null);
+  if(latest.hrv)cards+=metricCard('HRV',latest.hrv+'<span> ms</span>','latest reading',null);
+  if(latest.readiness)cards+=metricCard('Readiness',latest.readiness+'<span>/100</span>','as of '+latest.date,null);
+  g('summary-cards').innerHTML=cards||'<p style="font-size:12px;color:var(--text3);font-family:\'DM Mono\',monospace">Log data to see metrics.</p>';
+  renderBarChart('weight-chart',wE.slice(0,9).reverse().map(e=>({label:e.date.slice(5),val:e.weight})),'var(--accent)');
+  renderBarChart('steps-chart',stE.slice(0,9).reverse().map(e=>({label:e.date.slice(5),val:e.steps})),'var(--accent2)');
+  renderBarChart('bf-chart',bfE.slice(0,9).reverse().map(e=>({label:e.date.slice(5),val:e.bodyFat})),'var(--accent3)');
+  renderBarChart('hrv-chart',entries.filter(e=>e.hrv).slice(0,9).reverse().map(e=>({label:e.date.slice(5),val:e.hrv})),'var(--accent4)');
+  const sleepEl=g('sleep-scores-card');
+  sleepEl.innerHTML=slE.length?slE.slice(0,7).reverse().map(e=>`<div class="sleep-row"><div class="sleep-date">${e.date.slice(5)}</div><div class="sleep-bar-bg"><div class="sleep-bar-fill" style="width:${e.sleepScore}%"></div></div><div class="sleep-num">${e.sleepScore}</div></div>`).join(''):'<div style="font-size:12px;font-family:\'DM Mono\',monospace;color:var(--text3)">No sleep data yet.</div>';
+}
+function exportData(){
+  const entries=getEntries();
+  const blob=new Blob([JSON.stringify({version:1,exported:new Date().toISOString(),entries},null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='shredstack-backup-'+todayStr()+'.json';a.click();URL.revokeObjectURL(url);
+}
+function importData(event){
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result),incoming=data.entries||data;
+      if(!Array.isArray(incoming))throw new Error();
+      const merged=[...getEntries()];
+      incoming.forEach(entry=>{const idx=merged.findIndex(e=>e.date===entry.date);if(idx>=0)merged[idx]=entry;else merged.push(entry);});
+      merged.sort((a,b)=>b.date.localeCompare(a.date));saveEntries(merged);
+      const msg=g('import-msg');msg.textContent='✓ Imported '+incoming.length+' entries.';msg.style.display='block';
+      setTimeout(()=>msg.style.display='none',3000);
+    }catch{alert('Invalid backup file.');}
   };
-  reader.readAsText(file);
-  event.target.value = '';
+  reader.readAsText(file);event.target.value='';
 }
-
 renderProgress();
 </script>
 </body>
